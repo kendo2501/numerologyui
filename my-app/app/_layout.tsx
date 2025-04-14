@@ -1,39 +1,55 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+import React from 'react';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { UserDataProvider } from '../context/userDataContext'; // Đảm bảo đường dẫn này chính xác
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+    // Bao bọc toàn bộ ứng dụng bằng Provider để chia sẻ dữ liệu
+    <UserDataProvider>
+      {/* Sử dụng Stack Navigator làm cấu trúc điều hướng chính */}
+      <Stack
+        screenOptions={{
+          headerShown: false // Ẩn header mặc định cho các màn hình cấp cao nhất (index, grid)
+        }}
+      >
+        {/* Khai báo các màn hình được quản lý bởi Stack này */}
+        {/* Tên (name) phải khớp với tên file hoặc thư mục trong app/ */}
+
+        {/* Màn hình Form (ví dụ: app/index.tsx) */}
+        <Stack.Screen name="index" />
+
+        {/* Màn hình Grid (ví dụ: app/grid.tsx) */}
+        <Stack.Screen name="grid" />
+
+        {/* Màn hình chi tiết Số Chủ Đạo (ví dụ: app/main-number.tsx) */}
+        <Stack.Screen
+          name="main-number"
+          options={{
+            title: 'Số Chủ Đạo', // Tiêu đề hiển thị trên header
+            headerShown: true,    // Hiển thị header cho màn hình này
+            // Thêm các tùy chọn header khác nếu cần (màu sắc, nút back...)
+            // headerBackTitleVisible: false,
+          }}
+        />
+
+        {/* Màn hình chi tiết Biểu Đồ Ngày Sinh (ví dụ: app/birth-chart.tsx) */}
+        <Stack.Screen
+          name="birth-chart"
+          options={{
+            title: 'Biểu Đồ Ngày Sinh',
+            headerShown: true,
+            // headerBackTitleVisible: false,
+          }}
+        />
+
+        {/* --- BẠN CẦN THÊM CÁC Stack.Screen CHO CÁC MÀN HÌNH CHI TIẾT KHÁC Ở ĐÂY --- */}
+        {/*
+        <Stack.Screen name="name-chart" options={{ title: 'Biểu Đồ Tên', headerShown: true }} />
+        <Stack.Screen name="summary-chart" options={{ title: 'Biểu Đồ Tổng Hợp', headerShown: true }} />
+        ... vân vân ...
+        */}
+
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </UserDataProvider>
   );
 }
